@@ -1,9 +1,9 @@
-const jwt = requiere('jsonwebtoken')
+const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const asyncHandler = require('express-async-handler')
 const User = require('../models/usersModels')
 
-const registrar = asyncHandler( async (red,res) => {
+const registrar = asyncHandler( async (req, res) => {
     //Desestructurar el body
     const {nombre, email, password} = req.body
     //Verificar todos los datos
@@ -45,11 +45,36 @@ const registrar = asyncHandler( async (red,res) => {
 
 const login = asyncHandler( async(req, res) => {
 
+    const {email,password} = req.body
+
+    //Varificar que el usuario exista
+    const user = await User.findOne({email})
+ 
+    //Si el usuario existe, vamos a verificar su password
+    if (user && (await bcrypt.compare(password, user.password))) {
+        res.status(200).json({
+            _id: user.id,
+            nombre: user.nombre,
+            email: user.email,
+            token: generarToken(user.id)
+        })
+    } else {
+        res.status(400)
+        throw new Error('Credenciales incorrectas')
+    }
+
 })
 
 const misDatos = asyncHandler( async(req, res) =>{
 
 })
+
+//Funcion para generar le token
+const generarToken = (id_usuario) => {
+    return jwt.sign({id_usuario}, process.env.JWT_SECRET, {
+        expiresIn: '30d'
+    })
+}
 
 module.exports = {
     registrar,
