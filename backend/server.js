@@ -4,8 +4,6 @@ const dotenv = require('dotenv').config()
 const connectDB = require('./config/db')
 const errorHandler = require('./middleware/errorMiddleware')
 
-connectDB()
-
 const port = process.env.PORT || 5000
 
 connectDB()
