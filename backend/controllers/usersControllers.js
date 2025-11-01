@@ -20,6 +20,13 @@ const registrar = asyncHandler( async (req, res) => {
         throw new Error('Por favor, rellena el campo password');
     }
 
+    // Verificar si el usuario ya existe
+    const userExists = await User.findOne({ email })
+    if (userExists) {
+        res.status(400)
+        throw new Error('El usuario ya está registrado')
+    }
+
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
 
